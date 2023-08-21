@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace mglaman\PHPStanDrupal\Tests\Rules;
 
-use mglaman\PHPStanDrupal\Rules\Drupal\PluginManager\PluginManagerSetsCacheBackendRule;
+use mglaman\PHPStanDrupal\Rules\Drupal\PluginManager\PluginManagerSetsCacheBackendRulez;
 use mglaman\PHPStanDrupal\Tests\DrupalRuleTestCase;
 use PHPStan\Rules\Rule;
 
@@ -13,7 +13,7 @@ final class PluginManagerSetsCacheBackendRuleTest extends DrupalRuleTestCase
 
     protected function getRule(): Rule
     {
-        return new PluginManagerSetsCacheBackendRule();
+        return new PluginManagerSetsCacheBackendRulez(self::createReflectionProvider());
     }
 
     /**
@@ -30,14 +30,19 @@ final class PluginManagerSetsCacheBackendRuleTest extends DrupalRuleTestCase
             __DIR__ . '/data/plugin-manager-cache-backend.php',
             [
                 [
-                    'Missing cache backend declaration for performance.',
-                    12
+                    '__construct() Missing setCacheBackend() cache backend declaration for performance.',
+                    9
                 ],
                 [
-                    'plugins cache tag might be unclear and does not contain the cache key in it.',
-                    112,
+                    'plugins Cache tag in setCacheBackend() in the __construct() might be unclear and does not contain the cache key in it.',
+                    109,
                 ]
             ]
+        ];
+
+        yield [
+            __DIR__ . '/data/test-cases-598.php',
+            []
         ];
     }
 }
