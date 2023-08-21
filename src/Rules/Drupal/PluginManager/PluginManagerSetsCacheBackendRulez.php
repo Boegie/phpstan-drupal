@@ -33,11 +33,14 @@ class PluginManagerSetsCacheBackendRulez extends AbstractPluginManagerRule
     {
         assert($node instanceof Class_);
 
+        $errors = [];
+        $isProcessed = false;
         $hasCacheBackendSet = false;
         $misnamedCacheTagWarnings = [];
 
         foreach ($node->stmts as $statement) {
             if ($statement instanceof Node\Stmt\ClassMethod && $statement->name->name === '__construct') {
+                $isProcessed = true;
                 $namespacedName = (string) $node->namespacedName;
                 $scopeClassReflection = $this->reflectionProvider->getClass($namespacedName);
 
@@ -101,12 +104,14 @@ class PluginManagerSetsCacheBackendRulez extends AbstractPluginManagerRule
 //                }
             }
         }
-        $errors = [];
-        if (!$hasCacheBackendSet) {
-            $errors[] = '__construct() Missing setCacheBackend() cache backend declaration for performance.';
-        }
-        foreach ($misnamedCacheTagWarnings as $cacheTagWarning) {
-            $errors[] = sprintf('%s Cache tag in setCacheBackend() in the __construct() might be unclear and does not contain the cache key in it.', $cacheTagWarning);
+
+        if ($isProcessed) {
+            if (!$hasCacheBackendSet) {
+                $errors[] = '__construct() Missing setCacheBackend() cache backend declaration for performance.';
+            }
+            foreach ($misnamedCacheTagWarnings as $cacheTagWarning) {
+                $errors[] = sprintf('%s Cache tag in setCacheBackend() in the __construct() might be unclear and does not contain the cache key in it.', $cacheTagWarning);
+            }
         }
 
         return $errors;
